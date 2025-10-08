@@ -1,20 +1,47 @@
 import streamlit as st
 
-# Página Streamlit: Empreteiros
-# Arquivo: app.py (ou qualquer nome que desejar)
+# Página Streamlit: Empreteiros (PSM)
+# Arquivo: app.py
 
 st.set_page_config(page_title="Empreteiros", layout="wide")
 
 # Sidebar
 st.sidebar.title("Empreteiros")
 companies = ["FIBRASOL", "ANGLOBAL", "ISITEL"]
-choice = st.sidebar.radio("Selecione uma empresa:", companies)
+choice = st.sidebar.radio("Selecione um PSM:", companies)
 
-# Main content
+# Rotas específicas para ISITEL
+isitel_rotas = [
+    "Lucola - Hoji_Cacongo",
+    "Hoji_Cacongo - Belize",
+    "Hoji_Cacongo - Massabe_Fronteira",
+    "Massabi_Fronteira - Belize",
+    "Corda_Expansão_Cabassango",
+    "BSC_Cabinda - Quatro",
+    "Quatro - Tchizu_O",
+    "Tchizu_O - Cine_Popular",
+    "Cine_Popular - BSC_Cabinda",
+    "BSC_Cabinda - Resistencia (Cabo_1)",
+    "BSC_Cabinda - Resistencia (Cabo_2)",
+    "Resistencia - Cine_Popular",
+    "Quatro - PV_Grande_NT",
+    "PV_Grande_NT - Tchizu_O",
+    "Resistencia - Lucola",
+    "Lucola - Tchizu_O",
+    "PV_Grande_NT - Yema_Fronteira"
+]
+
+# Expanders para rotas dentro do Empreteiro ISITEL
+if choice == "ISITEL":
+    with st.sidebar.expander("Rotas ISITEL", expanded=False):
+        for rota in isitel_rotas:
+            st.sidebar.markdown(f"- {rota}")
+
+# Conteúdo principal
 st.title("Apresentação Interativa — Empreteiros")
-st.markdown("Escolha uma empresa no menu lateral para ver mais informações.")
+st.markdown("Escolha um PSM no menu lateral para ver mais informações.")
 
-# Informação por empresa (exemplo explicativo — personalize conforme quiser)
+# Informação por empresa
 info = {
     "FIBRASOL": {
         "Descrição": "Empresa especializada em implementação e manutenção de redes de fibra óptica.",
@@ -47,11 +74,8 @@ with col1:
     st.info("Use este espaço para adicionar observações, histórico do cliente, pendências contratuais ou fotos das intervenções.")
 
 with col2:
-    st.write("")
     st.image("https://via.placeholder.com/300x180.png?text=" + choice, caption=choice)
-    st.markdown("\n")
     with st.expander("Dados rápidos"):
-        st.write("Exemplo de KPI:")
         st.metric(label="Projetos ativos", value=3)
         st.metric(label="Tickets abertos", value=1)
 
