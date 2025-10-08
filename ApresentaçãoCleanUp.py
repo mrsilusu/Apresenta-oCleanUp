@@ -1,8 +1,6 @@
 import streamlit as st
 
 # Página Streamlit: Empreteiros (PSM)
-# Arquivo: app.py
-
 st.set_page_config(page_title="Empreteiros", layout="wide")
 
 # Sidebar
@@ -31,7 +29,7 @@ isitel_rotas = [
     "PV_Grande_NT - Yema_Fronteira"
 ]
 
-# Expanders para rotas dentro do Empreteiro ISITEL
+# Sidebar — expanders para ISITEL
 if choice == "ISITEL":
     with st.sidebar.expander("Rotas ISITEL", expanded=False):
         for rota in isitel_rotas:
@@ -62,7 +60,7 @@ info = {
 
 selected = info.get(choice, {})
 
-# Layout de apresentação
+# Layout principal
 col1, col2 = st.columns([2, 1])
 with col1:
     st.header(choice)
@@ -70,8 +68,34 @@ with col1:
     st.write("**Serviços:**", selected.get("Serviços", ""))
     st.write("**Contacto:**", selected.get("Contacto", ""))
     st.markdown("---")
-    st.markdown("### Notas / Observações")
-    st.info("Use este espaço para adicionar observações, histórico do cliente, pendências contratuais ou fotos das intervenções.")
+
+    # Caso o PSM seja ISITEL → mostrar tabela de rotas
+    if choice == "ISITEL":
+        st.markdown("## Rotas ISISTEL")
+        st.write("Clique em uma rota para ver detalhes (função em desenvolvimento).")
+
+        num_cols = 5  # número de colunas
+        num_rows = 4  # número de linhas (ajustável)
+        idx = 0
+
+        # Geração da tabela 4x5 dinamicamente
+        for i in range(num_rows):
+            cols = st.columns(num_cols)
+            for col in cols:
+                if idx < len(isitel_rotas):
+                    rota = isitel_rotas[idx]
+                    with col:
+                        clicked = st.button(rota, key=f"rota_{idx}")
+                        if clicked:
+                            st.session_state["rota_selecionada"] = rota
+                    idx += 1
+                else:
+                    with col:
+                        st.empty()
+
+        # Exibir feedback se alguma rota for clicada
+        if "rota_selecionada" in st.session_state:
+            st.success(f"Rota selecionada: {st.session_state['rota_selecionada']}")
 
 with col2:
     st.image("https://via.placeholder.com/300x180.png?text=" + choice, caption=choice)
@@ -79,11 +103,11 @@ with col2:
         st.metric(label="Projetos ativos", value=3)
         st.metric(label="Tickets abertos", value=1)
 
-# Rodapé simples
+# Rodapé
 st.markdown("---")
 st.caption("App interativo criado com Streamlit — pronto para deploy no GitHub e Streamlit Cloud.")
 
-# Instruções rápidas (visíveis no app)
+# Instruções rápidas
 with st.expander("Como usar / Deploy"):
     st.markdown(
         """
