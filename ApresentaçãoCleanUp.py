@@ -1,133 +1,73 @@
 import streamlit as st
 import pandas as pd
-from streamlit_extras.metric_cards import style_metric_cards
 
-# =====================
-# CONFIGURAÇÕES GERAIS
-# =====================
-st.set_page_config(
-    page_title="Apresentação CleanUp AutoProcess",
-    layout="wide",
-    page_icon="🧹"
-)
+# --- Configurações da página ---
+st.set_page_config(page_title="Empreteiros - PSM", layout="wide")
 
-# =====================
-# ESTILO CUSTOMIZADO
-# =====================
-st.markdown("""
-    <style>
-        body {
-            background-color: #f7f9fb;
-        }
-        .main {
-            padding: 2rem;
-        }
-        h1, h2, h3 {
-            color: #1E3A8A;
-            font-weight: 700;
-        }
-        .small-text {
-            font-size: 14px !important;
-        }
-        .metric-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .metric-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            flex: 1;
-            min-width: 180px;
+# --- Sidebar ---
+st.sidebar.title("Empreteiros")
+psm = st.sidebar.selectbox("Selecione um PSM", ["FIBRASOL", "ANGLOBAL", "ISITEL"])
+
+# --- Lista de rotas da ISISTEL ---
+rotas_isistel = [
+    "Lucola - Hoji_Cacongo",
+    "Hoji_Cacongo - Belize",
+    "Hoji_Cacongo - Massabe_Fronteira",
+    "Massabi_Fronteira - Belize",
+    "Corda_Expansão_Cabassango",
+    "BSC_Cabinda - Quatro",
+    "Quatro - Tchizu_O",
+    "Tchizu_O - Cine_Popular",
+    "Cine_Popular - BSC_Cabinda",
+    "BSC_Cabinda - Resistencia (Cabo_1)",
+    "BSC_Cabinda - Resistencia (Cabo_2)",
+    "Resistencia - Cine_Popular",
+    "Quatro - PV_Grande_NT",
+    "PV_Grande_NT - Tchizu_O",
+    "Resistencia - Lucola",
+    "Lucola - Tchizu_O",
+    "PV_Grande_NT - Yema_Fronteira"
+]
+
+# --- Área principal ---
+st.title("Apresentação dos PSM")
+
+if psm == "ISITEL":
+    st.markdown("### Rotas ISISTEL")
+
+    # Tabela 4 linhas x 5 colunas (com preenchimento automático)
+    num_colunas = 5
+    num_linhas = (len(rotas_isistel) // num_colunas) + 1
+
+    # Divide as rotas em blocos de 5
+    for i in range(num_linhas):
+        cols = st.columns(num_colunas, gap="small")
+        for j in range(num_colunas):
+            index = i * num_colunas + j
+            if index < len(rotas_isistel):
+                rota = rotas_isistel[index]
+                with cols[j]:
+                    # Botões clicáveis para cada rota
+                    st.button(
+                        rota,
+                        key=f"rota_{index}",
+                        help=f"Clique para ver detalhes da rota {rota}"
+                    )
+
+    # Estilo adicional
+    st.markdown("""
+        <style>
+        div.stButton > button {
+            width: 100%;
+            height: 80px;
+            font-size: 13px;
+            white-space: normal;
             text-align: center;
+            line-height: 1.2;
+            border-radius: 10px;
         }
-        .metric-card h4 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            word-break: keep-all;
-        }
-        .metric-card span {
-            font-size: 18px;
-            color: #2563EB;
-            font-weight: bold;
-        }
-    </style>
-""", unsafe_allow_html=True)
+        </style>
+    """, unsafe_allow_html=True)
 
-# =====================
-# TÍTULO PRINCIPAL
-# =====================
-st.title("🧹 CleanUp AutoProcess – Painel de Apresentação")
-
-st.markdown("### 📍 Monitoramento de Rotas dos Empreiteiros (ISITEL)")
-st.markdown("Visualização consolidada das medições OTDR, status e rotas tratadas no sistema CleanUp AutoProcess.")
-
-# =====================
-# DADOS DE EXEMPLO (podes substituir pelo teu dataframe real)
-# =====================
-dados = {
-    "Empreiteiro": ["ISITEL", "ISITEL", "PSM", "PSM", "TECNOLINK", "TECNOLINK"],
-    "Rota": [
-        "Zango 0 - Cacuaco",
-        "Viana 1 - Kikuxi",
-        "Mutamba - Maculusso",
-        "Maianga - Kinaxixi",
-        "Talatona - Patriota",
-        "Benfica - Samba"
-    ],
-    "Status": ["Concluído", "Em andamento", "Concluído", "Concluído", "Pendente", "Em andamento"],
-    "Medições": [43, 25, 52, 48, 18, 21]
-}
-
-df = pd.DataFrame(dados)
-
-# =====================
-# VISUALIZAÇÃO AGRUPADA
-# =====================
-for empreiteiro, grupo in df.groupby("Empreiteiro"):
-    st.subheader(f"👷 {empreiteiro}")
-
-    # Exibe métricas em linha como "cards"
-    cols = st.columns(len(grupo))
-    for i, (_, row) in enumerate(grupo.iterrows()):
-        with cols[i]:
-            st.markdown(f"""
-                <div class="metric-card">
-                    <h4 class="small-text">{row['Rota']}</h4>
-                    <span>{row['Medições']} medições</span><br>
-                    <small>Status: <b>{row['Status']}</b></small>
-                </div>
-            """, unsafe_allow_html=True)
-
-    style_metric_cards()
-
-    # ================
-    # FUTURO: GRÁFICO DE COLUNAS
-    # (mantido comentado para uso posterior)
-    # ================
-    # import altair as alt
-    # chart = alt.Chart(grupo).mark_bar().encode(
-    #     x='Rota',
-    #     y='Medições',
-    #     color='Status',
-    #     tooltip=['Rota', 'Medições', 'Status']
-    # ).properties(
-    #     width=600,
-    #     height=300,
-    #     title=f"Gráfico de Medições - {empreiteiro}"
-    # )
-    # st.altair_chart(chart, use_container_width=True)
-
-    st.markdown("---")
-
-# =====================
-# RODAPÉ
-# =====================
-st.markdown("""
-    <div style='text-align:center; margin-top:2rem; color:gray; font-size:13px'>
-        © 2025 CleanUp AutoProcess | Desenvolvido para análise automática de medições OTDR.
-    </div>
-""", unsafe_allow_html=True)
+else:
+    st.info(f"Selecione o PSM **ISISTEL** no menu lateral para visualizar as rotas.")
